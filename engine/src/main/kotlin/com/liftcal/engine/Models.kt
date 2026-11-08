@@ -1,5 +1,7 @@
 package com.liftcal.engine
 
+import kotlin.math.ceil
+
 enum class Sex { MALE, FEMALE }
 
 /**
@@ -128,7 +130,7 @@ data class CalorieResult(
 ) {
     fun totalBetween(sessionStartMs: Long, fromMs: Long, toMs: Long): Double {
         val a = ((fromMs - sessionStartMs) / 1000).toInt().coerceIn(0, timeline.size)
-        val b = ((toMs - sessionStartMs) / 1000).toInt().coerceIn(0, timeline.size)
+        val b = ceil((toMs - sessionStartMs) / 1000.0).toInt().coerceIn(0, timeline.size)
         var s = 0.0
         for (i in a until b) s += timeline[i]
         return s
