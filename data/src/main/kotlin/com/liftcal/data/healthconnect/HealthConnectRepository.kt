@@ -13,6 +13,7 @@ import androidx.health.connect.client.records.RestingHeartRateRecord
 import androidx.health.connect.client.records.TotalCaloriesBurnedRecord
 import androidx.health.connect.client.records.Vo2MaxRecord
 import androidx.health.connect.client.records.WeightRecord
+import androidx.health.connect.client.records.metadata.Device
 import androidx.health.connect.client.records.metadata.Metadata
 import androidx.health.connect.client.request.ReadRecordsRequest
 import androidx.health.connect.client.time.TimeRangeFilter
@@ -102,10 +103,10 @@ class HealthConnectRepository(private val context: Context) {
         val zone = ZoneId.systemDefault().rules
         val startOffset = zone.getOffset(start)
         val endOffset = zone.getOffset(end)
-        fun meta(kind: String) = Metadata(
+        fun meta(kind: String) = Metadata.activelyRecorded(
+            device = Device(type = Device.TYPE_PHONE),
             clientRecordId = "liftcal-$kind-$workoutId",
             clientRecordVersion = System.currentTimeMillis(),
-            recordingMethod = Metadata.RECORDING_METHOD_ACTIVELY_RECORDED,
         )
         client.insertRecords(
             listOf(
