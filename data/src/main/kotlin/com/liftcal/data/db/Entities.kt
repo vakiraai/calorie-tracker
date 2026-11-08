@@ -6,6 +6,7 @@ import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
 import androidx.room.Relation
+import com.liftcal.engine.Calibration
 
 enum class WorkoutStatus {
     /** User is still logging sets. */
@@ -96,11 +97,11 @@ data class ProfileEntity(
     val restingHr: Double? = null,
     val maxHr: Double? = null,
     val vo2Max: Double? = null,
-    val hrVo2Scale: Double = 1.0,
-    val inSetHrWeight: Double = 0.7,
-    val workCostScale: Double = 1.0,
-    val epocScale: Double = 1.0,
-    val wristHrReliability: Double = 0.8,
+    val hrVo2Scale: Double = Calibration.PRIOR.hrVo2Scale,
+    val inSetHrWeight: Double = Calibration.PRIOR.inSetHrWeight,
+    val workCostScale: Double = Calibration.PRIOR.workCostScale,
+    val epocScale: Double = Calibration.PRIOR.epocScale,
+    val wristHrReliability: Double = Calibration.PRIOR.wristHrReliability,
     val referenceSessions: Int = 0,
 )
 

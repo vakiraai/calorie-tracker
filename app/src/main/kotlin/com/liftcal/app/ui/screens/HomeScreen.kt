@@ -139,6 +139,18 @@ fun HomeScreen(
                     TextButton(onClick = vm::refreshPending) { Text("Check for Fitbit sync now") }
                 }
             }
+            if (profile != null && workouts.isEmpty()) {
+                item {
+                    Column(Modifier.fillMaxWidth().padding(top = 48.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text("No workouts yet", style = MaterialTheme.typography.titleMedium)
+                        Text(
+                            "Wear your Fitbit Air, tap Start workout, and log each set as you lift.",
+                            style = MaterialTheme.typography.bodyMedium,
+                            modifier = Modifier.padding(top = 4.dp),
+                        )
+                    }
+                }
+            }
             items(workouts.filter { it.workout.status != WorkoutStatus.ACTIVE }, key = { it.workout.id }) { w ->
                 WorkoutCard(w) { onOpenWorkout(w.workout.id, false) }
             }

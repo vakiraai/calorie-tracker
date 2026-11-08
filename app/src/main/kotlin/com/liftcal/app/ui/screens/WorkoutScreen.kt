@@ -44,7 +44,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.runtime.DisposableEffect
@@ -97,8 +99,8 @@ class WorkoutViewModel(private val app: LiftCalApp, val workoutId: Long) : ViewM
         val last = workout.value?.sets?.filter { it.exerciseId == id }?.maxByOrNull { it.startMs }
         form.value = form.value.copy(
             exerciseId = id,
-            load = last?.let { num(it.loadKg) } ?: form.value.load,
-            reps = last?.reps?.toString() ?: form.value.reps,
+            load = last?.let { num(it.loadKg) } ?: "",
+            reps = last?.reps?.toString() ?: "",
         )
     }
 
@@ -119,8 +121,14 @@ class WorkoutViewModel(private val app: LiftCalApp, val workoutId: Long) : ViewM
             error.value = "Enter load and reps"
             return
         }
+        if (load > MAX_LOAD_KG || reps !in 1..MAX_REPS) {
+            error.value = "Check the numbers: load up to ${MAX_LOAD_KG.toInt()} kg, 1-$MAX_REPS reps"
+            return
+        }
         val now = System.currentTimeMillis()
-        val start = setStartedAt.value ?: (now - maxOf(reps, 1) * 3_000L)
+        val w = workout.value
+        val earliest = maxOf(w?.workout?.startMs ?: 0L, w?.sets?.maxOfOrNull { it.endMs } ?: 0L)
+        val start = setStartedAt.value ?: maxOf(now - reps * 3_000L, earliest).coerceAtMost(now - 1000)
         viewModelScope.launch {
             data.workouts.addSet(
                 SetEntity(
@@ -154,6 +162,11 @@ class WorkoutViewModel(private val app: LiftCalApp, val workoutId: Long) : ViewM
             data.workouts.delete(workoutId)
             onDone()
         }
+    }
+
+    companion object {
+        const val MAX_LOAD_KG = 500.0
+        const val MAX_REPS = 100
     }
 }
 
@@ -305,11 +318,28 @@ private fun SetEntry(form: SetForm, vm: WorkoutViewModel, running: Boolean, erro
                 NumberField("Reps", form.reps, Modifier.weight(1f), decimal = false) { vm.form.value = form.copy(reps = it) }
             }
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Checkbox(checked = form.rpe != null, onCheckedChange = { vm.form.value = form.copy(rpe = if (it) 8f else null) })
-                Text(form.rpe?.let { "RPE ${(it * 2).roundToInt() / 2.0}" } ?: "Rate effort (RPE)")
-                Row(Modifier.weight(1f)) {}
-                Checkbox(checked = form.warmup, onCheckedChange = { vm.form.value = form.copy(warmup = it) })
-                Text("Warm-up")
+                Row(
+                    Modifier.weight(1f).toggleable(
+                        value = form.rpe != null,
+                        role = Role.Checkbox,
+                        onValueChange = { vm.form.value = form.copy(rpe = if (it) 8f else null) },
+                    ),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Checkbox(checked = form.rpe != null, onCheckedChange = null)
+                    Text(form.rpe?.let { "RPE ${(it * 2).roundToInt() / 2.0}" } ?: "Rate effort (RPE)")
+                }
+                Row(
+                    Modifier.toggleable(
+                        value = form.warmup,
+                        role = Role.Checkbox,
+                        onValueChange = { vm.form.value = form.copy(warmup = it) },
+                    ),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Checkbox(checked = form.warmup, onCheckedChange = null)
+                    Text("Warm-up")
+                }
             }
             form.rpe?.let { r ->
                 Slider(value = r, onValueChange = { vm.form.value = form.copy(rpe = it) }, valueRange = 5f..10f, steps = 9)
