@@ -43,7 +43,7 @@ class CalibratorTest {
         val hr = Synth.hr(s)
         val fit = Calibrator(est).fit(listOf(CalibrationSample(s, hr, windowsFrom(Calibration.PRIOR, s, hr))), p)
         assertTrue(fit.rmsRelErrorAfter < 1e-3)
-        assertEquals(1.0, fit.calibration.hrVo2Scale, 0.02)
+        assertEquals(Calibration.PRIOR.hrVo2Scale, fit.calibration.hrVo2Scale, 0.02)
     }
 
     @Test

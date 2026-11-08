@@ -44,12 +44,12 @@ class AerobicModelTest {
     @Test
     fun fullReserveAtMaxHr() {
         val expected = p.effectiveVo2Max - RestingEnergy.vo2RestMlKgMin(p)
-        assertEquals(expected, m.netVo2(190.0, p, Calibration.PRIOR), 1e-9)
+        assertEquals(expected, m.netVo2(190.0, p, Calibration(hrVo2Scale = 1.0)), 1e-9)
     }
 
     @Test
     fun scalesWithCalibration() {
-        val a = m.netVo2(140.0, p, Calibration.PRIOR)
+        val a = m.netVo2(140.0, p, Calibration(hrVo2Scale = 1.0))
         val b = m.netVo2(140.0, p, Calibration(hrVo2Scale = 1.2))
         assertEquals(a * 1.2, b, 1e-9)
     }

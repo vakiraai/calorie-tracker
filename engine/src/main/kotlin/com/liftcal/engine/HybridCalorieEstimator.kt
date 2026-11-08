@@ -117,9 +117,10 @@ class HybridCalorieEstimator(
 
         val rho = config.noiseCorrelation
         val noiseSigma = sqrt(rho * sigmaSum * sigmaSum + (1 - rho) * sigmaSqSum)
-        val paramRel = (0.08 +
-            (if (profile.hasMeasuredMaxHr) 0.0 else 0.04) +
-            (if (profile.hasMeasuredVo2Max) 0.0 else 0.04)) / sqrt(1.0 + calib.referenceSessions)
+        // Between-person spread of the HR-VO2 relation during lifting dominates uncalibrated error.
+        val paramRel = (0.15 +
+            (if (profile.hasMeasuredMaxHr) 0.0 else 0.06) +
+            (if (profile.hasMeasuredVo2Max) 0.0 else 0.06)) / sqrt(1.0 + calib.referenceSessions)
         val paramSigma = activeTotal * paramRel
         val restSigma = restingTotal * 0.08
         val sigma = sqrt(noiseSigma * noiseSigma + paramSigma * paramSigma + restSigma * restSigma)

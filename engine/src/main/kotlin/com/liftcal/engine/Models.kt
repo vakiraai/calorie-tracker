@@ -80,8 +80,12 @@ data class WorkoutSession(
  * Defaults are population priors.
  */
 data class Calibration(
-    /** Multiplier on net (above-rest) VO2 predicted from heart-rate reserve. */
-    val hrVo2Scale: Double = 1.0,
+    /**
+     * Multiplier on net (above-rest) VO2 predicted from heart-rate reserve. Below 1 by default:
+     * during resistance training HR runs higher for a given VO2 than in the steady cardio the
+     * %HRR ~ %VO2R relation was derived from (sympathetic drive, pressor response, small muscle mass).
+     */
+    val hrVo2Scale: Double = 0.8,
     /** Weight on heart-rate-derived VO2 inside sets, where HR is inflated by the pressor response. */
     val inSetHrWeight: Double = 0.7,
     /** Multiplier on the metabolic cost of mechanical work (inverse of efficiency deviation). */
