@@ -1,0 +1,2 @@
+-keepclassmembers class com.liftcal.data.fitbit.** { *** Companion; }
+-keepclasseswithmembers class com.liftcal.data.fitbit.** { kotlinx.serialization.KSerializer serializer(...); }
